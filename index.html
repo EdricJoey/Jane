@@ -10,9 +10,62 @@
     />
     <link rel="shortcut icon" type="image/png" href="./img/heart.svg" />
     <link rel="stylesheet" href="style/style.css" />
+    
+    <!-- Add Font Awesome for music control icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+    <style>
+      /* Music player styling */
+      .music-player {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+      }
+      
+      .music-player button {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #ff6b6b;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+      }
+      
+      .music-player button:hover {
+        transform: scale(1.1);
+        color: #ff3e3e;
+      }
+      
+      .song-title {
+        margin-left: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #444;
+      }
+    </style>
   </head>
 
   <body>
+    <!-- Audio element - hidden but functional -->
+    <audio id="bgMusic">
+      <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Music player controls -->
+    <div class="music-player">
+      <button id="playPauseBtn"><i class="fas fa-play"></i></button>
+      <button id="muteBtn"><i class="fas fa-volume-up"></i></button>
+      <span class="song-title">521 Special Song</span>
+    </div>
+    
     <div class="container">
       <div class="one">
         <h1 class="one">
@@ -131,4 +184,61 @@
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
   <script type="text/babel" src="script/main.js"></script>
+  
+  <!-- Music player script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const audio = document.getElementById('bgMusic');
+      const playPauseBtn = document.getElementById('playPauseBtn');
+      const muteBtn = document.getElementById('muteBtn');
+      const playIcon = '<i class="fas fa-play"></i>';
+      const pauseIcon = '<i class="fas fa-pause"></i>';
+      const volumeOnIcon = '<i class="fas fa-volume-up"></i>';
+      const volumeOffIcon = '<i class="fas fa-volume-mute"></i>';
+      
+      // Auto-play setting (can be changed)
+      const autoPlay = true;
+      
+      // Set up initial state
+      audio.volume = 0.5;
+      
+      if (autoPlay) {
+        // Most browsers prevent autoplay unless user has interacted with the page
+        // We'll try to autoplay, but the button state will handle user interaction
+        audio.play().catch(e => console.log('Autoplay prevented. User needs to interact first.'));
+      }
+      
+      // Update button state based on audio state
+      function updatePlayPauseButton() {
+        playPauseBtn.innerHTML = audio.paused ? playIcon : pauseIcon;
+      }
+      
+      // Play/Pause toggle
+      playPauseBtn.addEventListener('click', function() {
+        if (audio.paused) {
+          audio.play();
+        } else {
+          audio.pause();
+        }
+        updatePlayPauseButton();
+      });
+      
+      // Mute toggle
+      muteBtn.addEventListener('click', function() {
+        audio.muted = !audio.muted;
+        muteBtn.innerHTML = audio.muted ? volumeOffIcon : volumeOnIcon;
+      });
+      
+      // Update button when audio plays or pauses
+      audio.addEventListener('play', updatePlayPauseButton);
+      audio.addEventListener('pause', updatePlayPauseButton);
+      
+      // When audio ends, reset to beginning
+      audio.addEventListener('ended', function() {
+        audio.currentTime = 0;
+        audio.play(); // Auto replay 
+        updatePlayPauseButton();
+      });
+    });
+  </script>
 </html>
